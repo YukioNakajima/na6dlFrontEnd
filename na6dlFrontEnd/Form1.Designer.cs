@@ -33,14 +33,14 @@
 			this.btnAddList = new System.Windows.Forms.Button();
 			this.lblNovelTitle = new System.Windows.Forms.Label();
 			this.lblTimeCount = new System.Windows.Forms.Label();
-			this.lblNovelStatus = new System.Windows.Forms.Label();
+			this.lblStatusNovel = new System.Windows.Forms.Label();
 			this.lblProgress = new System.Windows.Forms.Label();
 			this.btnDelList = new System.Windows.Forms.Button();
 			this.btnDownload = new System.Windows.Forms.Button();
 			this.groupBox1 = new System.Windows.Forms.GroupBox();
 			this.lblListProgress = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
-			this.lblAppStatus = new System.Windows.Forms.Label();
+			this.lblStatusApp = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.groupBox1.SuspendLayout();
 			this.SuspendLayout();
@@ -89,15 +89,15 @@
 			this.lblTimeCount.TabIndex = 5;
 			this.lblTimeCount.Text = "00:00:00";
 			// 
-			// lblNovelStatus
+			// lblStatusNovel
 			// 
-			this.lblNovelStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this.lblStatusNovel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblNovelStatus.Location = new System.Drawing.Point(8, 34);
-			this.lblNovelStatus.Name = "lblNovelStatus";
-			this.lblNovelStatus.Size = new System.Drawing.Size(297, 15);
-			this.lblNovelStatus.TabIndex = 1;
-			this.lblNovelStatus.Text = "Status";
+			this.lblStatusNovel.Location = new System.Drawing.Point(8, 34);
+			this.lblStatusNovel.Name = "lblStatusNovel";
+			this.lblStatusNovel.Size = new System.Drawing.Size(297, 15);
+			this.lblStatusNovel.TabIndex = 1;
+			this.lblStatusNovel.Text = "Status";
 			// 
 			// lblProgress
 			// 
@@ -136,7 +136,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.groupBox1.Controls.Add(this.lblNovelTitle);
 			this.groupBox1.Controls.Add(this.lblProgress);
-			this.groupBox1.Controls.Add(this.lblNovelStatus);
+			this.groupBox1.Controls.Add(this.lblStatusNovel);
 			this.groupBox1.Location = new System.Drawing.Point(12, 190);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(495, 55);
@@ -164,16 +164,16 @@
 			this.label1.TabIndex = 6;
 			this.label1.Text = "リスト進行状況";
 			// 
-			// lblAppStatus
+			// lblStatusApp
 			// 
-			this.lblAppStatus.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+			this.lblStatusApp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblAppStatus.Location = new System.Drawing.Point(18, 165);
-			this.lblAppStatus.Name = "lblAppStatus";
-			this.lblAppStatus.Size = new System.Drawing.Size(198, 14);
-			this.lblAppStatus.TabIndex = 4;
-			this.lblAppStatus.Text = "AppStatus";
-			this.lblAppStatus.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+			this.lblStatusApp.Location = new System.Drawing.Point(18, 165);
+			this.lblStatusApp.Name = "lblStatusApp";
+			this.lblStatusApp.Size = new System.Drawing.Size(198, 14);
+			this.lblStatusApp.TabIndex = 4;
+			this.lblStatusApp.Text = "AppStatus";
+			this.lblStatusApp.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 			// 
 			// timer1
 			// 
@@ -185,7 +185,7 @@
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(519, 254);
-			this.Controls.Add(this.lblAppStatus);
+			this.Controls.Add(this.lblStatusApp);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.lblListProgress);
 			this.Controls.Add(this.lblTimeCount);
@@ -213,14 +213,14 @@
 		private System.Windows.Forms.Button btnAddList;
 		private System.Windows.Forms.Label lblNovelTitle;
 		private System.Windows.Forms.Label lblTimeCount;
-		private System.Windows.Forms.Label lblNovelStatus;
+		private System.Windows.Forms.Label lblStatusNovel;
 		private System.Windows.Forms.Label lblProgress;
 		private System.Windows.Forms.Button btnDelList;
 		private System.Windows.Forms.Button btnDownload;
 		private System.Windows.Forms.GroupBox groupBox1;
 		private System.Windows.Forms.Label lblListProgress;
 		private System.Windows.Forms.Label label1;
-		private System.Windows.Forms.Label lblAppStatus;
+		private System.Windows.Forms.Label lblStatusApp;
 		private System.Windows.Forms.Timer timer1;
 	}
 }
