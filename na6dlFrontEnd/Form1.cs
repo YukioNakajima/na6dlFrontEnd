@@ -173,6 +173,9 @@ namespace na6dlFrontEnd
 			}
 		}
 
+		/// <summary>
+		/// リストに表示している項目をINIファイルに書き込み
+		/// </summary>
 		private void writeIniListItem()
 		{
 			int num = lbUrlList.Items.Count;
@@ -184,79 +187,143 @@ namespace na6dlFrontEnd
 		}
 
 		/// <summary>
+		/// C#による仮想WndProc()、WM_COPYDATAとWM_USER+30(WM_DLINFO)をハンドルする
+		/// </summary>
+		/// <param name="m"></param>
+		protected override void WndProc(ref Message m)
+		{
+			base.WndProc(ref m);
+
+			switch (m.Msg)
+			{
+				case WM_COPYDATA:
+					{
+						COPYDATASTRUCT32 cds = (COPYDATASTRUCT32)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT32));
+						TotalChap = cds.dwData;
+						lblNovelTitle.Text = Marshal.PtrToStringAuto(cds.lpData);
+					}
+					break;
+				case WM_DLINFO:
+					{
+						ChapCount = (int)m.WParam;
+						lblProgress.Text = $"{(int)(ChapCount * 100 / TotalChap)}".PadLeft(3) + $@"% ({ChapCount}/{TotalChap})";
+					}
+					break;
+			}
+		}
+
+		/// <summary>
 		/// ダウンロードボタン押下処理
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
-		private void btnDownload_Click(object sender, EventArgs e)
+		private async void  btnDownload_Click(object sender, EventArgs e)
 		{
-			busy = true;
-			btnDownload.Enabled = busy;
-			DownloadAll();
-			busy = false;
-			btnDownload.Enabled = !busy;
+			pnlBtn.Enabled = busy;
+			await DownloadAllAsync();
+			pnlBtn.Enabled = !busy;
 		}
+
+		/// <summary>
+		/// ダウンロードの非同期用
+		/// </summary>
+		/// <returns></returns>
+		private async Task DownloadAllAsync()
+		{
+			timer1.Enabled = true;
+			Task task = Task.Run(() => { DownloadAll(); });
+			await task;
+			timer1.Enabled = false;
+		}
+
+		private delegate void dglbUrlListSelectedIndex(int idx);
+		/// <summary>
+		/// lbUrlListのSelectedIndexを操作する
+		/// 非同期スレッド／メインスレッド共用
+		/// </summary>
+		/// <param name="idx"></param>
+		private void lbUrlListSelectedIndex(int idx)
+		{
+			if (lbUrlList.InvokeRequired)
+			{
+				this.Invoke(new dglbUrlListSelectedIndex(lbUrlListSelectedIndex), idx);
+				return;
+			}
+			lbUrlList.SelectedIndex = idx;
+		}
+
+		/// <summary>
+		/// LabelのTextに文字列をセットする
+		/// 非同期スレッド／メインスレッド共用
+		/// </summary>
+		/// <param name="label">対象ラベル</param>
+		/// <param name="str">表示文字列</param>
+		private delegate void dglblText(Label label, string str);
+		private void lblText(Label label, string str)
+		{
+			if (label.InvokeRequired)
+			{
+				this.Invoke(new dglblText(lblText),label, str);
+				return;
+			}
+			label.Text = str;
+		}
+
 
 		/// <summary>
 		/// 
 		/// </summary>
 		private void DownloadAll()
 		{
-			lblStatusApp.Text = "ダウンロード開始";
-			lblStatusNovel.Text = "";
+			lblText(lblStatusApp, "ダウンロード開始");
+			lblText(lblStatusNovel,"");
 			sStatus = "";
+			
 			latestDLDateTime = DateTime.Now;
 
+			busy = true;
 			string section = DateTimeCheck();
 
 			if (section != "")
 			{
-				timer1.Enabled = true;
 				WritePrivateProfileString("NextDownLoad", "実行日時", $"{latestDLDateTime:yyyy/MM/dd HH:mm:ss}", iniPath);
 				for (int idx =0; idx < lbUrlList.Items.Count; idx++)
 				{
-					lbUrlList.SelectedIndex = idx;
-					if (listNovelDL((string)lbUrlList.Items[idx], section) == false)
+					lbUrlListSelectedIndex(idx);
+
+					string listPath = (string)lbUrlList.Items[idx];
+					string[] linebuf = File.ReadAllLines(listPath);
+					if (listNovelDL(linebuf, section, true) == false)
+					{
+						break;
+					}
+					novelTotal = novelCount;
+					lblText(lblListProgress, "(" + "   0" + " / " + novelTotal.ToString().PadLeft(4) + ")");
+					if (listNovelDL(linebuf, section) == false)
 					{
 						break;
 					}
 				}
-				timer1.Enabled = false;
-				lbUrlList.SelectedIndex = -1;
-				lblStatusApp.Text = "ダウンロード終了";
-			}
+				//lbUrlList.SelectedIndex = -1;
+				lbUrlListSelectedIndex(-1);
+				lblText(lblStatusApp, "ダウンロード終了");
+				}
 			else
 			{
 				MessageBox.Show(this, $"最後にダウンロードしてから１２時間経過していません\nあと[{nextEveryDay - DateTime.Now}]");
 			}
+			busy = false;
 		}
+
 
 		/// <summary>
 		/// リストの小説をダウンロードする
-		/// </summary>
-		/// <param name="listPath">リストファイルパス</param>
-		/// <param name="section">読み込みセクション</param>
-		/// <returns>成功時true</returns>
-		private bool listNovelDL(string listPath, string section)
-		{
-			string[] linebuf = File.ReadAllLines(listPath);
-			if (listNovelSub(linebuf, section, true))
-			{
-				novelTotal = novelCount;
-				lblListProgress.Text = "(" + "   0" + " / " + novelTotal.ToString().PadLeft(4) + ")";
-				return listNovelSub(linebuf, section);
-			}
-			return false;
-		}
-
-		/// <summary>
-		/// リストの小説をダウンロードする、サブ関数
 		/// </summary>
 		/// <param name="linebuf">リストファイルの内容</param>
 		/// <param name="section">読み込みセクション</param>
 		/// <param name="countOnly">小説のカウントのみする時true</param>
 		/// <returns>成功時true</returns>
-		private bool listNovelSub(string[] linebuf, string section, bool countOnly = false)
+		private bool listNovelDL(string[] linebuf, string section, bool countOnly = false)
 		{
 			bool result = false;
 
@@ -344,7 +411,7 @@ namespace na6dlFrontEnd
 								}
 							}
 							//途中までダウンロードできていれば続きをダウンロードし、マージする
-							lblStatusNovel.Text = "ダウンロード開始";
+							lblText(lblStatusNovel, "ダウンロード開始");
 							int startPage = 0;
 							string tmppath = $@"{exeDirName}\tmp.txt";
 							Process proc = null;
@@ -353,9 +420,8 @@ namespace na6dlFrontEnd
 								startPage = latestChap + 1;
 								if (File.Exists(tmppath)) File.Delete(tmppath);
 								//小説を続きの章から最新章までダウンロード
-								//proc = downloadOne(hWnd, ldata, tmppath, startPage);
-								//proc.WaitForExit();
-								downloadOneAsync2(hWnd, ldata, tmppath, startPage);
+								proc = downloadOne(hWnd, ldata, tmppath, startPage);
+								proc.WaitForExit();
 
 								//小説ファイルをマージする
 								if (File.Exists(tmppath))
@@ -380,14 +446,11 @@ namespace na6dlFrontEnd
 							else
 							{
 								//小説を最初から最新章までダウンロード
-								//proc = downloadOne(hWnd, ldata, filepath);
-								//proc.WaitForExit();
-								downloadOneAsync2(hWnd, ldata, filepath);
+								proc = downloadOne(hWnd, ldata, filepath);
+								proc.WaitForExit();
 
 							}
-							//proc.WaitForExit();
-							//リスト進行状況を表示する
-							lblListProgress.Text = "(" + novelCount.ToString().PadLeft(4) + " / " + novelTotal.ToString().PadLeft(4) + ")";
+							lblText(lblListProgress, "(" + novelCount.ToString().PadLeft(4) + " / " + novelTotal.ToString().PadLeft(4) + ")");
 							//小説情報ファイルを書き込む
 							using (StreamWriter sw = new StreamWriter(File.Create(infopath), new UTF8Encoding()))
 							{
@@ -494,62 +557,6 @@ namespace na6dlFrontEnd
 		}
 
 		/// <summary>
-		/// C#による仮想WndProc()、WM_COPYDATAとWM_USER+30(WM_DLINFO)をハンドルする
-		/// </summary>
-		/// <param name="m"></param>
-		protected override void WndProc(ref Message m)
-		{
-			base.WndProc(ref m);
-
-			switch (m.Msg)
-			{
-				case WM_COPYDATA:
-					{
-						COPYDATASTRUCT32 cds = (COPYDATASTRUCT32)Marshal.PtrToStructure(m.LParam, typeof(COPYDATASTRUCT32));
-						TotalChap = cds.dwData;
-						lblNovelTitle.Text = Marshal.PtrToStringAuto(cds.lpData);
-					}
-					break;
-				case WM_DLINFO:
-					{
-						ChapCount = (int)m.WParam;
-						lblProgress.Text = $"{(int)(ChapCount * 100 / TotalChap)}".PadLeft(3) + $@"% ({ChapCount}/{TotalChap})";
-					}
-					break;
-			}
-
-		}
-
-		/// <summary>
-		/// 小説1つをダウンロードする関数の非同期スレッド２
-		/// 引数、戻り値付き関数を非同期にするのがよくわからかったので
-		/// </summary>
-		/// <param name="hWnd"></param>
-		/// <param name="URL"></param>
-		/// <param name="filePath"></param>
-		/// <param name="startChap"></param>
-		private async void downloadOneAsync2(IntPtr hWnd, string URL, string filePath = null, int startChap = 0)
-		{
-			Task<Process> dl = downloadOneAsync(hWnd, URL, filePath, startChap);
-			Process proc = await dl;
-			proc.WaitForExit();
-		}
-
-		/// <summary>
-		/// 小説1つをダウンロードする関数の非同期スレッド
-		/// 引数、戻り値付き関数を非同期にするのがよくわからかったので
-		/// </summary>
-		/// <param name="hWnd"></param>
-		/// <param name="URL"></param>
-		/// <param name="filePath"></param>
-		/// <param name="startChap"></param>
-		/// <returns></returns>
-		private async Task<Process> downloadOneAsync(IntPtr hWnd, string URL, string filePath = null, int startChap = 0)
-		{
-			return downloadOne(hWnd, URL, filePath, startChap);
-		}
-
-		/// <summary>
 		/// na6dl.exeを使って小説一つをダウンロードする
 		/// </summary>
 		/// <param name="URL"></param>
@@ -578,8 +585,8 @@ namespace na6dlFrontEnd
 			{
 				proc.StartInfo.Arguments = $" \"-h {hWnd}\" \"-s {startChap}\" \"{filePath}\" {URL}";
 			}
-			//proc.StartInfo.CreateNoWindow = true; // コンソール・ウィンドウを開かない
-			//proc.StartInfo.UseShellExecute = false; // シェル機能を使用しない
+			proc.StartInfo.CreateNoWindow = true; // コンソール・ウィンドウを開かない
+			proc.StartInfo.UseShellExecute = false; // シェル機能を使用しない
 			proc.SynchronizingObject = this;
 			proc.Exited += new EventHandler(proc_Exited);//終了イベントを登録
 			proc.EnableRaisingEvents = true;
@@ -596,13 +603,29 @@ namespace na6dlFrontEnd
 		private void proc_Exited(object sender, EventArgs e)
 		{
 			//プロセスが終了したときに実行される
-			lblStatusNovel.Text = (sStatus == "") ? "ダウンロード終了" : sStatus;
+			//lblStatusNovel.Text = (sStatus == "") ? "ダウンロード終了" : sStatus;
+			if (sStatus == "")
+			{
+				lblText(lblStatusNovel, "ダウンロード終了");
+				lblText(lblProgress, $"100% ({TotalChap}/{TotalChap})");
+			}
+			else
+			{
+				lblText(lblStatusNovel, sStatus);
+			}
 			procComplete = true;
 		}
 
+		private string latesttime = "";
 		private void timer1_Tick(object sender, EventArgs e)
 		{
-			lblTimeCount.Text = $"{DateTime.Now - latestDLDateTime:hh\\:mm\\:ss}";
+			string strtime = $"{DateTime.Now - latestDLDateTime:hh\\:mm\\:ss}";
+			if(latesttime != strtime)
+			{
+				//lblTimeCount.Text = strtime;
+				lblText(lblTimeCount, strtime);
+				latesttime = strtime;
+			}
 		}
 	}
 }

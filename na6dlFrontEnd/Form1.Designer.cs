@@ -42,7 +42,9 @@
 			this.label1 = new System.Windows.Forms.Label();
 			this.lblStatusApp = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
+			this.pnlBtn = new System.Windows.Forms.Panel();
 			this.groupBox1.SuspendLayout();
+			this.pnlBtn.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// lbUrlList
@@ -53,16 +55,16 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lbUrlList.FormattingEnabled = true;
 			this.lbUrlList.ItemHeight = 12;
-			this.lbUrlList.Location = new System.Drawing.Point(12, 12);
+			this.lbUrlList.Location = new System.Drawing.Point(0, 0);
 			this.lbUrlList.Name = "lbUrlList";
 			this.lbUrlList.ScrollAlwaysVisible = true;
-			this.lbUrlList.Size = new System.Drawing.Size(400, 136);
+			this.lbUrlList.Size = new System.Drawing.Size(400, 148);
 			this.lbUrlList.TabIndex = 0;
 			// 
 			// btnAddList
 			// 
 			this.btnAddList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnAddList.Location = new System.Drawing.Point(418, 12);
+			this.btnAddList.Location = new System.Drawing.Point(406, 0);
 			this.btnAddList.Name = "btnAddList";
 			this.btnAddList.Size = new System.Drawing.Size(89, 23);
 			this.btnAddList.TabIndex = 1;
@@ -111,7 +113,7 @@
 			// btnDelList
 			// 
 			this.btnDelList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDelList.Location = new System.Drawing.Point(418, 70);
+			this.btnDelList.Location = new System.Drawing.Point(406, 58);
 			this.btnDelList.Name = "btnDelList";
 			this.btnDelList.Size = new System.Drawing.Size(89, 23);
 			this.btnDelList.TabIndex = 2;
@@ -122,7 +124,7 @@
 			// btnDownload
 			// 
 			this.btnDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDownload.Location = new System.Drawing.Point(435, 127);
+			this.btnDownload.Location = new System.Drawing.Point(423, 113);
 			this.btnDownload.Name = "btnDownload";
 			this.btnDownload.Size = new System.Drawing.Size(72, 23);
 			this.btnDownload.TabIndex = 3;
@@ -177,8 +179,18 @@
 			// 
 			// timer1
 			// 
-			this.timer1.Interval = 1000;
 			this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+			// 
+			// pnlBtn
+			// 
+			this.pnlBtn.Controls.Add(this.btnAddList);
+			this.pnlBtn.Controls.Add(this.btnDelList);
+			this.pnlBtn.Controls.Add(this.btnDownload);
+			this.pnlBtn.Controls.Add(this.lbUrlList);
+			this.pnlBtn.Location = new System.Drawing.Point(3, 12);
+			this.pnlBtn.Name = "pnlBtn";
+			this.pnlBtn.Size = new System.Drawing.Size(504, 150);
+			this.pnlBtn.TabIndex = 9;
 			// 
 			// Form1
 			// 
@@ -190,10 +202,7 @@
 			this.Controls.Add(this.lblListProgress);
 			this.Controls.Add(this.lblTimeCount);
 			this.Controls.Add(this.groupBox1);
-			this.Controls.Add(this.btnDownload);
-			this.Controls.Add(this.btnDelList);
-			this.Controls.Add(this.btnAddList);
-			this.Controls.Add(this.lbUrlList);
+			this.Controls.Add(this.pnlBtn);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(535, 293);
@@ -202,6 +211,7 @@
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.groupBox1.ResumeLayout(false);
+			this.pnlBtn.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -222,6 +232,7 @@
 		private System.Windows.Forms.Label label1;
 		private System.Windows.Forms.Label lblStatusApp;
 		private System.Windows.Forms.Timer timer1;
+		private System.Windows.Forms.Panel pnlBtn;
 	}
 }
 
