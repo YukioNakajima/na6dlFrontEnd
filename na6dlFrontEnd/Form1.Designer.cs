@@ -183,6 +183,9 @@
 			// 
 			// pnlBtn
 			// 
+			this.pnlBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlBtn.Controls.Add(this.btnAddList);
 			this.pnlBtn.Controls.Add(this.btnDelList);
 			this.pnlBtn.Controls.Add(this.btnDownload);

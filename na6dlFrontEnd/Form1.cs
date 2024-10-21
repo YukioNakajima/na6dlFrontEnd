@@ -54,6 +54,8 @@ namespace na6dlFrontEnd
 		private bool procComplete = false;
 		private bool busy = false;
 		private IntPtr hWnd = IntPtr.Zero;
+		private string dlAfterOpeNovel1st = "";
+		private string dlAfterOpeNovel1Later = "";
 
 		/// <summary>
 		/// コンストラクタ
@@ -75,13 +77,24 @@ namespace na6dlFrontEnd
 			exeDirName = Path.GetDirectoryName(path);
 			iniPath = exeDirName + @"\" + Path.GetFileNameWithoutExtension(path) + ".ini";
 
-			StringBuilder wk = new StringBuilder(256);
-			GetPrivateProfileString("NextDownLoad", "毎日", "2000/01/01 00:00:00", wk, 256, iniPath);
+			StringBuilder wk = new StringBuilder(512);
+			GetPrivateProfileString("NextDownLoad", "毎日", "2000/01/01 00:00:00", wk, 512, iniPath);
 			nextEveryDay = DateTime.Parse(wk.ToString());
-			GetPrivateProfileString("NextDownLoad", "毎週", "2000/01/01 00:00:00", wk, 256, iniPath);
+			GetPrivateProfileString("NextDownLoad", "毎週", "2000/01/01 00:00:00", wk, 512, iniPath);
 			nextEveryWeek = DateTime.Parse(wk.ToString());
-			GetPrivateProfileString("NextDownLoad", "毎月", "2000/01/01 00:00:00", wk, 256, iniPath);
+			GetPrivateProfileString("NextDownLoad", "毎月", "2000/01/01 00:00:00", wk, 512, iniPath);
 			nextEveryMon = DateTime.Parse(wk.ToString());
+
+			GetPrivateProfileString("DownloadAfterOperation", "Novel1st", "", wk, 512, iniPath);
+			dlAfterOpeNovel1st = wk.ToString();
+			GetPrivateProfileString("DownloadAfterOperation", "Novel1Later", "", wk, 512, iniPath);
+			dlAfterOpeNovel1Later = wk.ToString();
+
+			////テスト用
+			//if (dlAfterOpeNovel1st != "")
+			//{
+			//	exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
+			//}
 
 			hWnd = this.Handle;
 
@@ -422,6 +435,10 @@ namespace na6dlFrontEnd
 								//小説を続きの章から最新章までダウンロード
 								proc = downloadOne(hWnd, ldata, tmppath, startPage);
 								proc.WaitForExit();
+								if(dlAfterOpeNovel1Later != "")
+								{
+									exeAfterOperation(dlAfterOpeNovel1Later, tmppath);
+								}
 
 								//小説ファイルをマージする
 								if (File.Exists(tmppath))
@@ -448,7 +465,10 @@ namespace na6dlFrontEnd
 								//小説を最初から最新章までダウンロード
 								proc = downloadOne(hWnd, ldata, filepath);
 								proc.WaitForExit();
-
+								if (dlAfterOpeNovel1st != "")
+								{
+									exeAfterOperation(dlAfterOpeNovel1st, filepath);
+								}
 							}
 							lblText(lblListProgress, "(" + novelCount.ToString().PadLeft(4) + " / " + novelTotal.ToString().PadLeft(4) + ")");
 							//小説情報ファイルを書き込む
@@ -471,6 +491,43 @@ namespace na6dlFrontEnd
 				sStatus = $"ダウンロードエラー：{ex.Message}";
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// 外部プログラムの実行
+		/// </summary>
+		/// <param name="cmdLine">コマンドライン、%Fが有ればファイル名に置き換え　例"xxx.exe" "-r" "%F"」</param>
+		/// <param name="filepath"></param>
+		private void exeAfterOperation(string cmdline, string filepath)
+		{
+			int pos = 0;
+			string arg = "";
+			string filename = "";
+			cmdline = cmdline.Trim();
+			if (cmdline[0] == '"')
+			{
+				pos = cmdline.IndexOf('\"', 1);
+				filename = cmdline.Substring(1, pos-1);//.Trim(new char[] { '"', ' ' });
+			}
+			else
+			{
+				pos = cmdline.IndexOf(' ', 1);
+				filename = cmdline.Substring(0, pos);//.Trim(new char[] { '"', ' ' });
+			}
+			//引数を確定し、特定文字を置き換える
+			arg = cmdline.Substring(pos +1);//.Trim(new char[] { '"', ' ' });
+			arg = arg.Replace("%F", filepath);
+			//プロセスを作成し、実行する
+			ProcessStartInfo pInfo = new ProcessStartInfo();
+			pInfo.FileName = filename;
+			pInfo.Arguments = arg;
+			//意味がない
+			//pInfo.CreateNoWindow = true; // コンソール・ウィンドウを開かない
+			//pInfo.UseShellExecute = false; // シェル機能を使用しない
+			Process p = Process.Start(pInfo);
+			//終了待ち
+			p.WaitForExit();
+			//MessageBox.Show("終了しました");
 		}
 
 		/// <summary>
