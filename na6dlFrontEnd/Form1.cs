@@ -136,36 +136,6 @@ namespace na6dlFrontEnd
 					"［＃ここで罫囲み終わり］［＃水平線］",
 					"",
 					"",
-					"■■■■■■■■■■■■■■",
-					"開始時刻　５：００",
-					"仕事：魚獲り",
-					"人形：赤土人形１０体、安山岩人形２体",
-					"募集人数：１２人",
-					"条件１：釣りっぽ指名",
-					"条件２：雷属性２名",
-					"条件３：誰でも可９名",
-					"達成条件：魚を採取して帰還する。",
-					"",
-					"説明：",
-					"・ミニャの分として最低でも３匹分取ってくる。それ以降は賢者の分け前および氷室へ貯蔵する。昨日は鳥の襲撃があったため、数人は護衛として上空を警戒すること。",
-					"",
-					"■■■■■■■■■■■■■■",
-					"■■■■■■■■■■■■■■",
-					"開始時刻　５：００",
-					"仕事：ゴブリンの監視",
-					"人形：赤土人形",
-					"募集人数：５人",
-					"条件：誰でも可５名",
-					"達成条件：ゴブリンの集落の監視を１時間行なう。",
-					"",
-					"説明：",
-					"・ゴブリンの集落の東西南北と集落垣根内に作った見張り穴にて、ゴブリンの監視を行なう。",
-					"・絶対に手出しをしてはならない。じっとしていられる賢者のみ受注すること。",
-					"・また、グロ映像を見る可能性もあるので、グロ耐性があるほうが望ましい。",
-					"・ゴブリンに見つかった場合は、穴の中に引っ込んでただちに指示を仰ぐこと。",
-					"",
-					"■■■■■■■■■■■■■■",
-					"",
 					"　常に総動員するのは不味いので、基本的に半分が召喚され、半分が外部にいるという体制を取ることになった。",
 					"　召喚されていない人は、パソコンで情報を集めて助言をしたり、連絡係をしたりと活動する。もちろん休憩に入ってもいい。深夜になったら全員が寝るというのは絶対に避けたいので、休憩も仕事なのだ。",
 					"",
@@ -315,6 +285,7 @@ namespace na6dlFrontEnd
 					{
 						ChapCount = (int)m.WParam;
 						lblProgress.Text = $"{(int)(ChapCount * 100 / TotalChap)}".PadLeft(3) + $@"% ({ChapCount}/{TotalChap})";
+						lblProgress.BackColor = ((ChapCount & 1) == 0) ? SystemColors.Control : Color.AliceBlue;
 					}
 					break;
 			}
@@ -377,13 +348,23 @@ namespace na6dlFrontEnd
 			label.Text = str;
 		}
 
+		private delegate void dglblBkCol(Label label, Color col);
+		private void lblBkCol(Label label, Color col)
+		{
+			if (label.InvokeRequired)
+			{
+				this.Invoke(new dglblBkCol(lblBkCol), col);
+				return;
+			}
+			label.BackColor = col;
+		}
 
 		/// <summary>
-		/// 
+		/// 表内の全てのリストファイルを利用してダウンロード
 		/// </summary>
 		private void DownloadAll()
 		{
-			lblText(lblStatusApp, "ダウンロード開始");
+			lblText(lblStatusApp, "ダウンロード中");
 			lblText(lblStatusNovel,"");
 			sStatus = "";
 			
@@ -565,7 +546,7 @@ namespace na6dlFrontEnd
 					}
 				}
 				//途中までダウンロードできていれば続きをダウンロードし、マージする
-				lblText(lblStatusNovel, "ダウンロード開始");
+				lblText(lblStatusNovel, "ダウンロード中");
 				int startPage = 0;
 				string tmppath = $@"{exeDirName}\tmp.txt";
 				Process proc = null;
@@ -836,6 +817,7 @@ namespace na6dlFrontEnd
 			{
 				lblText(lblStatusNovel, sStatus);
 			}
+			lblBkCol(lblProgress, SystemColors.Control);
 			procComplete = true;
 		}
 
