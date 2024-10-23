@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace na6dlFrontEnd
 {
@@ -90,12 +91,6 @@ namespace na6dlFrontEnd
 			GetPrivateProfileString("DownloadAfterOperation", "Novel1Later", "", wk, 512, iniPath);
 			dlAfterOpeNovel1Later = wk.ToString();
 
-			////テスト用
-			//if (dlAfterOpeNovel1st != "")
-			//{
-			//	exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
-			//}
-
 			hWnd = this.Handle;
 
 			lblNovelTitle.Text =
@@ -103,18 +98,99 @@ namespace na6dlFrontEnd
 			lblStatusNovel.Text = "";
 			lblProgress.Text = "0% (0/0)";
 
+			int num = (int)GetPrivateProfileInt("ListItems", "Count", -1, iniPath);
+			for (int i = 0; i < num; i++)
+			{
+				GetPrivateProfileString("ListItems", $"Item{i + 1}", "", wk, 256, iniPath);
+				string item = wk.ToString();
+				if (item != "") lbUrlList.Items.Add(item);
+			}
+
+			//テスト用
+			if(false)
+			{
+				if (dlAfterOpeNovel1st != "")
+				{
+					exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
+				}
+
+			}
+			if (false)
+			{
+				string[] buff = new string[]
+				{
+					"［＃水平線］［＃ここから罫囲み］",
+					"読んでくださりありがとうございます。",
+					"ゴブリンの邪悪さのお口直しにどうぞ。",
+					"",
+					"",
+					"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］",
+					"",
+					"［＃ここで罫囲み終わり］［＃水平線］",
+					"［＃改ページ］",
+					"［＃中見出し］１－３０　２日目の朝［＃中見出し終わり］",
+					"",
+					"［＃水平線］［＃ここから罫囲み］",
+					"本日もよろしくお願いします。",
+					"",
+					"［＃ここで罫囲み終わり］［＃水平線］",
+					"",
+					"",
+					"■■■■■■■■■■■■■■",
+					"開始時刻　５：００",
+					"仕事：魚獲り",
+					"人形：赤土人形１０体、安山岩人形２体",
+					"募集人数：１２人",
+					"条件１：釣りっぽ指名",
+					"条件２：雷属性２名",
+					"条件３：誰でも可９名",
+					"達成条件：魚を採取して帰還する。",
+					"",
+					"説明：",
+					"・ミニャの分として最低でも３匹分取ってくる。それ以降は賢者の分け前および氷室へ貯蔵する。昨日は鳥の襲撃があったため、数人は護衛として上空を警戒すること。",
+					"",
+					"■■■■■■■■■■■■■■",
+					"■■■■■■■■■■■■■■",
+					"開始時刻　５：００",
+					"仕事：ゴブリンの監視",
+					"人形：赤土人形",
+					"募集人数：５人",
+					"条件：誰でも可５名",
+					"達成条件：ゴブリンの集落の監視を１時間行なう。",
+					"",
+					"説明：",
+					"・ゴブリンの集落の東西南北と集落垣根内に作った見張り穴にて、ゴブリンの監視を行なう。",
+					"・絶対に手出しをしてはならない。じっとしていられる賢者のみ受注すること。",
+					"・また、グロ映像を見る可能性もあるので、グロ耐性があるほうが望ましい。",
+					"・ゴブリンに見つかった場合は、穴の中に引っ込んでただちに指示を仰ぐこと。",
+					"",
+					"■■■■■■■■■■■■■■",
+					"",
+					"　常に総動員するのは不味いので、基本的に半分が召喚され、半分が外部にいるという体制を取ることになった。",
+					"　召喚されていない人は、パソコンで情報を集めて助言をしたり、連絡係をしたりと活動する。もちろん休憩に入ってもいい。深夜になったら全員が寝るというのは絶対に避けたいので、休憩も仕事なのだ。",
+					"",
+					"　というわけで、理想の猫の国を作るためにニート共は人形に宿って異世界へ働きに出た。",
+					"",
+					"「にゃふぅ！」",
+					"",
+					"",
+					"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i817371/）入る］",
+					"",
+					"",
+					"　お人形さんにうじゃうじゃと囲まれてふんすぅとするのはミニャ。",
+					"　今日からミニャもお外で元気に活動だ。",
+
+				};
+
+				string[] strs = getFigLink(buff);
+			}
+
+
 			if (nextEveryDay > DateTime.Now)
 			{
 				btnDownload.Enabled = false;
 				MessageBox.Show(this, $"最後にダウンロードしてから１２時間経過していません\nあと[{(nextEveryDay - DateTime.Now):hh\\:mm\\:ss}]");
 				lblStatusApp.Text = $"実行可能迄後[{(nextEveryDay - DateTime.Now):hh\\:mm\\:ss}]";
-			}
-			int num = (int)GetPrivateProfileInt("ListItems", "Count", -1, iniPath);
-			for (int i = 0; i < num; i++)
-			{
-				GetPrivateProfileString("ListItems", $"Item{i+1}","", wk, 256, iniPath);
-				string item = wk.ToString();
-				if (item != "")	lbUrlList.Items.Add(item);
 			}
 		}
 
@@ -139,7 +215,7 @@ namespace na6dlFrontEnd
 		}
 
 		/// <summary>
-		/// リストに追加ボタン押下処理
+		/// リストにリストファイル追加ボタン押下処理
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="e"></param>
@@ -170,6 +246,20 @@ namespace na6dlFrontEnd
 		}
 
 		/// <summary>
+		/// URLをリストに追加ボタン押下処理
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void btnUrlAdd_Click(object sender, EventArgs e)
+		{
+			frmInputURL frm = new frmInputURL();
+			frm.ShowDialog();
+			string str = frm.URLAddress.Trim();
+			lbUrlList.Items.Add(str);
+			writeIniListItem();
+		}
+
+		/// <summary>
 		/// リストから削除ボタン押下処理
 		/// </summary>
 		/// <param name="sender"></param>
@@ -179,6 +269,11 @@ namespace na6dlFrontEnd
 			lblStatusApp.Text =
 			lblStatusNovel.Text = "";
 			sStatus = "";
+			if(lbUrlList.SelectedIndex >= lbUrlList.Items.Count)
+			{
+				MessageBox.Show(this, "選択されていません", "Warning");
+				return;
+			}
 			if (MessageBox.Show(this, $"{lbUrlList.Items[lbUrlList.SelectedIndex]} をリストから削除しますか？", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
 			{
 				lbUrlList.Items.RemoveAt(lbUrlList.SelectedIndex);
@@ -305,6 +400,12 @@ namespace na6dlFrontEnd
 					lbUrlListSelectedIndex(idx);
 
 					string listPath = (string)lbUrlList.Items[idx];
+					if(listPath.IndexOf(@"https://") == 0)
+					{
+						DownloadNovel(listPath);
+						continue;
+					}
+
 					string[] linebuf = File.ReadAllLines(listPath);
 					if (listNovelDL(linebuf, section, true) == false)
 					{
@@ -328,9 +429,8 @@ namespace na6dlFrontEnd
 			busy = false;
 		}
 
-
 		/// <summary>
-		/// リストの小説をダウンロードする
+		/// リストファイルの小説をダウンロードする
 		/// </summary>
 		/// <param name="linebuf">リストファイルの内容</param>
 		/// <param name="section">読み込みセクション</param>
@@ -345,7 +445,7 @@ namespace na6dlFrontEnd
 			int seqno = 0;
 			bool abortFlag = false;
 			string filepath = "";
-			string infopath = "";
+			//string infopath = "";
 			string novelDir = "";
 
 			novelCount = 0;
@@ -406,76 +506,9 @@ namespace na6dlFrontEnd
 							{
 								Directory.CreateDirectory(novelDir);
 							}
-							//小説情報ファイルを読み込む
-							infopath = $@"{novelDir}\{fname}Info.txt";
-							filepath=  $@"{novelDir}\{fname}{fext}";
-							int latestChap = 0;
-							DateTime latestDate = DateTime.Parse("2000/1/1");
-							if(File.Exists(infopath))
-							{
-								using (StreamReader sr = new StreamReader(File.Open(infopath, FileMode.Open), new UTF8Encoding()))
-								{
-									string[] infos = sr.ReadLine().Split(',');
-									if (infos.Length >= 2)
-									{
-										latestDate = DateTime.Parse(infos[0]);
-										latestChap = int.Parse(infos[1]);
-									}
-								}
-							}
-							//途中までダウンロードできていれば続きをダウンロードし、マージする
-							lblText(lblStatusNovel, "ダウンロード開始");
-							int startPage = 0;
-							string tmppath = $@"{exeDirName}\tmp.txt";
-							Process proc = null;
-							if (latestChap > 0)
-							{
-								startPage = latestChap + 1;
-								if (File.Exists(tmppath)) File.Delete(tmppath);
-								//小説を続きの章から最新章までダウンロード
-								proc = downloadOne(hWnd, ldata, tmppath, startPage);
-								proc.WaitForExit();
-								if(dlAfterOpeNovel1Later != "")
-								{
-									exeAfterOperation(dlAfterOpeNovel1Later, tmppath);
-								}
-
-								//小説ファイルをマージする
-								if (File.Exists(tmppath))
-								{
-									List<string> buff = File.ReadAllLines(tmppath).ToList<string>();
-									using (FileStream fs = File.Open(filepath, FileMode.Open))
-									using (StreamWriter sw = new StreamWriter(fs, new UTF8Encoding()))
-									{
-										fs.Seek(0, SeekOrigin.End);
-										int idx = 0;
-										for (; idx < buff.Count; idx++)
-										{
-											if (buff[idx].IndexOf("［＃中見出し］") >= 0) break;
-										}
-										for (; idx < buff.Count; idx++)
-										{
-											sw.WriteLine(buff[idx]);
-										}
-									}
-								}
-							}
-							else
-							{
-								//小説を最初から最新章までダウンロード
-								proc = downloadOne(hWnd, ldata, filepath);
-								proc.WaitForExit();
-								if (dlAfterOpeNovel1st != "")
-								{
-									exeAfterOperation(dlAfterOpeNovel1st, filepath);
-								}
-							}
+							//小説一つをダウンロード
+							DownloadNovel(ldata, novelDir, fname);
 							lblText(lblListProgress, "(" + novelCount.ToString().PadLeft(4) + " / " + novelTotal.ToString().PadLeft(4) + ")");
-							//小説情報ファイルを書き込む
-							using (StreamWriter sw = new StreamWriter(File.Create(infopath), new UTF8Encoding()))
-							{
-								sw.WriteLine($"{DateTime.Now}, {ChapCount + latestChap}");
-							}
 						}
 						filepath = "";
 					}
@@ -491,6 +524,119 @@ namespace na6dlFrontEnd
 				sStatus = $"ダウンロードエラー：{ex.Message}";
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// 小説をダウンロード
+		/// </summary>
+		/// <param name="UrlAdr">URL</param>
+		/// <param name="DirName">格納するディレクトリ名</param>
+		/// <param name="fname">ファイル名</param>
+		/// <param name="fext">ファイル拡張子</param>
+		private void DownloadNovel(string UrlAdr,string DirName="", string fname="", string fext = ".txt")
+		{
+			//小説情報ファイルを読み込む
+			string dirname = ((string.IsNullOrEmpty(DirName) ? exeDirName : DirName));
+			string infopath = $@"{dirname}\{fname}Info.txt";
+			string filepath = (string.IsNullOrEmpty(fname) ? "" : $@"{dirname}\{fname}{fext}");
+			int latestChap = 0;
+			DateTime latestDate = DateTime.Parse("2000/1/1");
+			List<string> infoLines = null;
+			try
+			{
+				if (File.Exists(infopath))
+				{
+					infoLines = File.ReadAllLines(infopath).ToList<string>();
+					if (infoLines.Count > 0)
+					{
+						foreach (string ldata in infoLines)
+						{
+							string[] infos = ldata.Split(',');
+							if (infos.Length >= 2)
+							{
+								if ((DateTime.TryParse(infos[0], out latestDate))
+								&& (int.TryParse(infos[1], out latestChap)))
+								{
+									infoLines.Remove(ldata);
+									break;
+								}
+							}
+						}
+					}
+				}
+				//途中までダウンロードできていれば続きをダウンロードし、マージする
+				lblText(lblStatusNovel, "ダウンロード開始");
+				int startPage = 0;
+				string tmppath = $@"{exeDirName}\tmp.txt";
+				Process proc = null;
+				if (latestChap > 0)
+				{
+					startPage = latestChap + 1;
+					if (File.Exists(tmppath)) File.Delete(tmppath);
+					//小説を続きの章から最新章までダウンロード
+					proc = na6dlDownload(hWnd, UrlAdr, tmppath, startPage);
+					proc.WaitForExit();
+
+					//小説ファイルをマージする
+					if (File.Exists(tmppath))
+					{
+						//リンクの図を検索してリンクのみの文字列配列を取得し、情報ファイルの内容に追加・重複削除する
+						getFigLink(File.ReadAllLines(tmppath), ref infoLines);
+						if (dlAfterOpeNovel1Later != "")
+						{
+							exeAfterOperation(dlAfterOpeNovel1Later, tmppath);
+						}
+						//List<string> buff = File.ReadAllLines(tmppath).ToList<string>();
+						string[] buff = File.ReadAllLines(tmppath);
+						using (FileStream fs = File.Open(filepath, FileMode.Open))
+						using (StreamWriter sw = new StreamWriter(fs, new UTF8Encoding()))
+						{
+							//int len = buff.Count;
+							int len = buff.Length;
+							fs.Seek(0, SeekOrigin.End);
+							int idx = 0;
+							for (; idx < len; idx++)
+							{
+								if (buff[idx].IndexOf("［＃中見出し］") >= 0) break;
+							}
+							for (; idx < len; idx++)
+							{
+								sw.WriteLine(buff[idx]);
+							}
+						}
+					}
+				}
+				else
+				{
+					//小説を最初から最新章までダウンロード
+					proc = na6dlDownload(hWnd, UrlAdr, filepath);
+					proc.WaitForExit();
+					infoLines = new List<string>();
+					//リンクの図を検索してリンクのみの文字列配列を取得し、情報ファイルの内容に追加・重複削除する
+					getFigLink(File.ReadAllLines(filepath), ref infoLines);
+
+					if (dlAfterOpeNovel1st != "")
+					{
+						exeAfterOperation(dlAfterOpeNovel1st, filepath);
+					}
+				}
+				//小説情報ファイルを書き込む
+				using (StreamWriter sw = new StreamWriter(File.Create(infopath), new UTF8Encoding()))
+				{
+					sw.WriteLine($"{DateTime.Now}, {ChapCount + latestChap}");
+					if (infoLines.Count > 0)
+					{
+						foreach (string str in infoLines)
+						{
+							sw.WriteLine(str);
+						}
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show( ex.Message);
+			}
 		}
 
 		/// <summary>
@@ -555,7 +701,7 @@ namespace na6dlFrontEnd
 		{
 			String result = "";
 
-			DateTime tmpdt;
+			//DateTime tmpdt;
 			DateTime nowDateTime = DateTime.Now;
 
 			if (nowDateTime >= nextEveryMon)
@@ -618,7 +764,7 @@ namespace na6dlFrontEnd
 		/// </summary>
 		/// <param name="URL"></param>
 		/// <param name="filePath"></param>
-		private Process downloadOne(IntPtr hWnd, string URL, string filePath = null, int startChap = 0)
+		private Process na6dlDownload(IntPtr hWnd, string URL, string filePath = null, int startChap = 0)
 		{
 			if ((URL.Contains("https://ncode.syosetu.com/n") == false)
 			&& (URL.Contains("https://novel18.syosetu.com/n") == false))
@@ -650,6 +796,26 @@ namespace na6dlFrontEnd
 			//起動する
 			proc.Start();
 			return proc;
+		}
+
+		/// <summary>
+		/// "［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］"と同様の文字列を含む行を抽出、
+		/// リンクのみにして指定のリストにマージ、
+		/// 重複を削除する
+		/// </summary>
+		/// <param name="strSrray">抽出元の文字列配列￥</param>
+		/// <param name="destlist">マージする文字列のリスト</param>
+		private void getFigLink(string[] strSrray, ref List<string> destlist)
+		{
+			//［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］
+			string[] strs = getFigLink(strSrray);
+			destlist.AddRange(strs);
+			destlist.Distinct();
+		}
+
+		private string[] getFigLink(string[] strSrray)
+		{
+			return strSrray.Where(str => str.Contains("リンクの図")).Select(str => Regex.Replace(str, @"^.*リンクの図（", "https:")).Select(str => Regex.Replace(str, @"）入る］.*", "")).ToArray();
 		}
 
 		/// <summary>
