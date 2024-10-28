@@ -44,6 +44,8 @@
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.pnlBtn = new System.Windows.Forms.Panel();
 			this.btnUrlAdd = new System.Windows.Forms.Button();
+			this.btnItemDn = new System.Windows.Forms.Button();
+			this.btnItemUp = new System.Windows.Forms.Button();
 			this.groupBox1.SuspendLayout();
 			this.pnlBtn.SuspendLayout();
 			this.SuspendLayout();
@@ -59,8 +61,9 @@
 			this.lbUrlList.Location = new System.Drawing.Point(0, 0);
 			this.lbUrlList.Name = "lbUrlList";
 			this.lbUrlList.ScrollAlwaysVisible = true;
-			this.lbUrlList.Size = new System.Drawing.Size(404, 148);
+			this.lbUrlList.Size = new System.Drawing.Size(404, 172);
 			this.lbUrlList.TabIndex = 0;
+			this.lbUrlList.SelectedIndexChanged += new System.EventHandler(this.lbUrlList_SelectedIndexChanged);
 			// 
 			// btnAddList
 			// 
@@ -69,7 +72,7 @@
 			this.btnAddList.Name = "btnAddList";
 			this.btnAddList.Size = new System.Drawing.Size(106, 23);
 			this.btnAddList.TabIndex = 1;
-			this.btnAddList.Text = "リストに追加...";
+			this.btnAddList.Text = "リストを追加...";
 			this.btnAddList.UseVisualStyleBackColor = true;
 			this.btnAddList.Click += new System.EventHandler(this.btnAddList_Click);
 			// 
@@ -86,7 +89,7 @@
 			// lblTimeCount
 			// 
 			this.lblTimeCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblTimeCount.Location = new System.Drawing.Point(227, 166);
+			this.lblTimeCount.Location = new System.Drawing.Point(227, 193);
 			this.lblTimeCount.Name = "lblTimeCount";
 			this.lblTimeCount.Size = new System.Drawing.Size(47, 15);
 			this.lblTimeCount.TabIndex = 5;
@@ -115,7 +118,7 @@
 			// 
 			this.btnDelList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnDelList.BackColor = System.Drawing.Color.Yellow;
-			this.btnDelList.Location = new System.Drawing.Point(409, 73);
+			this.btnDelList.Location = new System.Drawing.Point(409, 105);
 			this.btnDelList.Name = "btnDelList";
 			this.btnDelList.Size = new System.Drawing.Size(106, 23);
 			this.btnDelList.TabIndex = 2;
@@ -126,7 +129,7 @@
 			// btnDownload
 			// 
 			this.btnDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDownload.Location = new System.Drawing.Point(409, 124);
+			this.btnDownload.Location = new System.Drawing.Point(409, 147);
 			this.btnDownload.Name = "btnDownload";
 			this.btnDownload.Size = new System.Drawing.Size(106, 23);
 			this.btnDownload.TabIndex = 3;
@@ -141,7 +144,7 @@
 			this.groupBox1.Controls.Add(this.lblNovelTitle);
 			this.groupBox1.Controls.Add(this.lblProgress);
 			this.groupBox1.Controls.Add(this.lblStatusNovel);
-			this.groupBox1.Location = new System.Drawing.Point(3, 190);
+			this.groupBox1.Location = new System.Drawing.Point(3, 217);
 			this.groupBox1.Name = "groupBox1";
 			this.groupBox1.Size = new System.Drawing.Size(517, 55);
 			this.groupBox1.TabIndex = 8;
@@ -152,7 +155,7 @@
 			// 
 			this.lblListProgress.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.lblListProgress.AutoSize = true;
-			this.lblListProgress.Location = new System.Drawing.Point(363, 166);
+			this.lblListProgress.Location = new System.Drawing.Point(363, 193);
 			this.lblListProgress.Name = "lblListProgress";
 			this.lblListProgress.Size = new System.Drawing.Size(23, 12);
 			this.lblListProgress.TabIndex = 7;
@@ -162,7 +165,7 @@
 			// 
 			this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
 			this.label1.AutoSize = true;
-			this.label1.Location = new System.Drawing.Point(280, 166);
+			this.label1.Location = new System.Drawing.Point(280, 193);
 			this.label1.Name = "label1";
 			this.label1.Size = new System.Drawing.Size(77, 12);
 			this.label1.TabIndex = 6;
@@ -172,7 +175,7 @@
 			// 
 			this.lblStatusApp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.lblStatusApp.Location = new System.Drawing.Point(18, 165);
+			this.lblStatusApp.Location = new System.Drawing.Point(18, 192);
 			this.lblStatusApp.Name = "lblStatusApp";
 			this.lblStatusApp.Size = new System.Drawing.Size(203, 14);
 			this.lblStatusApp.TabIndex = 4;
@@ -188,6 +191,8 @@
 			this.pnlBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlBtn.Controls.Add(this.btnItemUp);
+			this.pnlBtn.Controls.Add(this.btnItemDn);
 			this.pnlBtn.Controls.Add(this.btnUrlAdd);
 			this.pnlBtn.Controls.Add(this.btnAddList);
 			this.pnlBtn.Controls.Add(this.btnDelList);
@@ -195,7 +200,7 @@
 			this.pnlBtn.Controls.Add(this.lbUrlList);
 			this.pnlBtn.Location = new System.Drawing.Point(3, 12);
 			this.pnlBtn.Name = "pnlBtn";
-			this.pnlBtn.Size = new System.Drawing.Size(517, 150);
+			this.pnlBtn.Size = new System.Drawing.Size(517, 177);
 			this.pnlBtn.TabIndex = 9;
 			// 
 			// btnUrlAdd
@@ -205,15 +210,35 @@
 			this.btnUrlAdd.Name = "btnUrlAdd";
 			this.btnUrlAdd.Size = new System.Drawing.Size(106, 23);
 			this.btnUrlAdd.TabIndex = 1;
-			this.btnUrlAdd.Text = "リストに追加(URL)...";
+			this.btnUrlAdd.Text = "URLを追加...";
 			this.btnUrlAdd.UseVisualStyleBackColor = true;
 			this.btnUrlAdd.Click += new System.EventHandler(this.btnUrlAdd_Click);
+			// 
+			// btnItemDn
+			// 
+			this.btnItemDn.Location = new System.Drawing.Point(463, 57);
+			this.btnItemDn.Name = "btnItemDn";
+			this.btnItemDn.Size = new System.Drawing.Size(52, 23);
+			this.btnItemDn.TabIndex = 4;
+			this.btnItemDn.Text = "▼";
+			this.btnItemDn.UseVisualStyleBackColor = true;
+			this.btnItemDn.Click += new System.EventHandler(this.btnItemDn_Click);
+			// 
+			// btnItemUp
+			// 
+			this.btnItemUp.Location = new System.Drawing.Point(409, 58);
+			this.btnItemUp.Name = "btnItemUp";
+			this.btnItemUp.Size = new System.Drawing.Size(52, 23);
+			this.btnItemUp.TabIndex = 4;
+			this.btnItemUp.Text = "▲";
+			this.btnItemUp.UseVisualStyleBackColor = true;
+			this.btnItemUp.Click += new System.EventHandler(this.btnItemUp_Click);
 			// 
 			// Form1
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(524, 254);
+			this.ClientSize = new System.Drawing.Size(524, 281);
 			this.Controls.Add(this.lblStatusApp);
 			this.Controls.Add(this.label1);
 			this.Controls.Add(this.lblListProgress);
@@ -222,7 +247,7 @@
 			this.Controls.Add(this.pnlBtn);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
-			this.MinimumSize = new System.Drawing.Size(535, 293);
+			this.MinimumSize = new System.Drawing.Size(535, 320);
 			this.Name = "Form1";
 			this.Text = "Form1";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -251,6 +276,8 @@
 		private System.Windows.Forms.Timer timer1;
 		private System.Windows.Forms.Panel pnlBtn;
 		private System.Windows.Forms.Button btnUrlAdd;
+		private System.Windows.Forms.Button btnItemUp;
+		private System.Windows.Forms.Button btnItemDn;
 	}
 }
 

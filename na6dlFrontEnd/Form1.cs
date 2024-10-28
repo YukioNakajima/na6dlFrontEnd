@@ -96,7 +96,7 @@ namespace na6dlFrontEnd
 			lblNovelTitle.Text =
 			lblStatusApp.Text =
 			lblStatusNovel.Text = "";
-			lblProgress.Text = "0% (0/0)";
+			lblProgress.Text = "";
 
 			int num = (int)GetPrivateProfileInt("ListItems", "Count", -1, iniPath);
 			for (int i = 0; i < num; i++)
@@ -106,8 +106,11 @@ namespace na6dlFrontEnd
 				if (item != "") lbUrlList.Items.Add(item);
 			}
 
+			lbUrlList_SelectedIndexChanged(null, null);
+
 			//テスト用
-			if(false)
+			//終了後外部保コマンド
+			if (false)
 			{
 				if (dlAfterOpeNovel1st != "")
 				{
@@ -115,6 +118,7 @@ namespace na6dlFrontEnd
 				}
 
 			}
+			//挿絵リンク抽出
 			if (false)
 			{
 				string[] buff = new string[]
@@ -154,7 +158,6 @@ namespace na6dlFrontEnd
 
 				string[] strs = getFigLink(buff);
 			}
-
 
 			if (nextEveryDay > DateTime.Now)
 			{
@@ -213,6 +216,7 @@ namespace na6dlFrontEnd
 				lbUrlList.Items.Add(ofd.FileName);
 				writeIniListItem();
 			}
+			lbUrlList_SelectedIndexChanged(null, null);
 		}
 
 		/// <summary>
@@ -227,6 +231,36 @@ namespace na6dlFrontEnd
 			string str = frm.URLAddress.Trim();
 			lbUrlList.Items.Add(str);
 			writeIniListItem();
+			lbUrlList_SelectedIndexChanged(null, null);
+		}
+
+		private void btnItemUp_Click(object sender, EventArgs e)
+		{
+			int sidx = lbUrlList.SelectedIndex;
+			string strsave = (string)lbUrlList.Items[sidx - 1];
+			lbUrlList.Items.RemoveAt(sidx - 1);
+			lbUrlList.Items.Insert(sidx, strsave);
+			btnItemUp.Enabled = ((sidx - 1) > 0);
+			btnItemDn.Enabled = true;
+		}
+
+		private void btnItemDn_Click(object sender, EventArgs e)
+		{
+			int sidx = lbUrlList.SelectedIndex;
+			int maxidx = lbUrlList.Items.Count - 1;
+			string strsave = (string)lbUrlList.Items[sidx + 1];
+			lbUrlList.Items.RemoveAt(sidx + 1);
+			lbUrlList.Items.Insert(sidx, strsave);
+			btnItemUp.Enabled = true;
+			btnItemDn.Enabled = ((sidx + 1) < maxidx);
+		}
+
+		private void lbUrlList_SelectedIndexChanged(object sender, EventArgs e)
+		{
+			int sidx = lbUrlList.SelectedIndex;
+			int maxidx = lbUrlList.Items.Count - 1;
+			btnItemUp.Enabled = (sidx > 0);
+			btnItemDn.Enabled = (sidx < maxidx) && (sidx >= 0);
 		}
 
 		/// <summary>
@@ -249,6 +283,7 @@ namespace na6dlFrontEnd
 				lbUrlList.Items.RemoveAt(lbUrlList.SelectedIndex);
 				writeIniListItem();
 			}
+			lbUrlList_SelectedIndexChanged(null, null);
 		}
 
 		/// <summary>
@@ -367,15 +402,13 @@ namespace na6dlFrontEnd
 			lblText(lblStatusApp, "ダウンロード中");
 			lblText(lblStatusNovel,"");
 			sStatus = "";
-			
-			latestDLDateTime = DateTime.Now;
+			lblText(lblNovelTitle, "");
 
 			busy = true;
-			string section = DateTimeCheck();
+			string section = CheckDateTime();
 
 			if (section != "")
 			{
-				WritePrivateProfileString("NextDownLoad", "実行日時", $"{latestDLDateTime:yyyy/MM/dd HH:mm:ss}", iniPath);
 				for (int idx =0; idx < lbUrlList.Items.Count; idx++)
 				{
 					lbUrlListSelectedIndex(idx);
@@ -402,7 +435,8 @@ namespace na6dlFrontEnd
 				//lbUrlList.SelectedIndex = -1;
 				lbUrlListSelectedIndex(-1);
 				lblText(lblStatusApp, "ダウンロード終了");
-				}
+				WriteNextDateTime(section);
+			}
 			else
 			{
 				MessageBox.Show(this, $"最後にダウンロードしてから１２時間経過していません\nあと[{nextEveryDay - DateTime.Now}]");
@@ -503,6 +537,7 @@ namespace na6dlFrontEnd
 			catch (Exception ex)
 			{
 				sStatus = $"ダウンロードエラー：{ex.Message}";
+				lblText(lblStatusApp, sStatus);
 			}
 			return result;
 		}
@@ -545,11 +580,14 @@ namespace na6dlFrontEnd
 						}
 					}
 				}
-				//途中までダウンロードできていれば続きをダウンロードし、マージする
 				lblText(lblStatusNovel, "ダウンロード中");
+				lblText(lblNovelTitle, "");
+				lblText(lblProgress, "");
+
 				int startPage = 0;
 				string tmppath = $@"{exeDirName}\tmp.txt";
 				Process proc = null;
+				//途中までダウンロードできていれば続きをダウンロードし、マージする
 				if (latestChap > 0)
 				{
 					startPage = latestChap + 1;
@@ -596,9 +634,16 @@ namespace na6dlFrontEnd
 					//リンクの図を検索してリンクのみの文字列配列を取得し、情報ファイルの内容に追加・重複削除する
 					getFigLink(File.ReadAllLines(filepath), ref infoLines);
 
-					if (dlAfterOpeNovel1st != "")
+					if(File.Exists(filepath))
 					{
-						exeAfterOperation(dlAfterOpeNovel1st, filepath);
+						if (dlAfterOpeNovel1st != "")
+						{
+							exeAfterOperation(dlAfterOpeNovel1st, filepath);
+						}
+					}
+					else
+					{
+						MessageBox.Show(this,"小説がダウンロード出来ません","警告",MessageBoxButtons.OK,MessageBoxIcon.Warning);
 					}
 				}
 				//小説情報ファイルを書き込む
@@ -643,7 +688,10 @@ namespace na6dlFrontEnd
 			}
 			//引数を確定し、特定文字を置き換える
 			arg = cmdline.Substring(pos +1);//.Trim(new char[] { '"', ' ' });
-			arg = arg.Replace("%F", filepath);
+			//%Fをダウンロードファイルパスへ置換
+			arg = arg.Replace("%F", filepath).Replace("%f", filepath);
+			//%AをEXEディレクトリパスへ置換
+			arg = arg.Replace("%A", exeDirName).Replace("%a", exeDirName);
 			//プロセスを作成し、実行する
 			ProcessStartInfo pInfo = new ProcessStartInfo();
 			pInfo.FileName = filename;
@@ -678,37 +726,57 @@ namespace na6dlFrontEnd
 		/// 前回ダウンロードからの時間でダウンロードするセクションを決定する
 		/// </summary>
 		/// <returns></returns>
-		private string DateTimeCheck()
+		private string CheckDateTime()
 		{
 			String result = "";
 
 			//DateTime tmpdt;
-			DateTime nowDateTime = DateTime.Now;
+			latestDLDateTime = DateTime.Now;
 
-			if (nowDateTime >= nextEveryMon)
+			if (latestDLDateTime >= nextEveryMon)
 			{
-				int monInterval = DateTime.DaysInMonth(nowDateTime.Year, nowDateTime.Month) - nowDateTime.Day + 1;
-				nextEveryMon = DateTime.Parse(nowDateTime.AddDays(monInterval).ToString("yyyy/MM/dd"));
-				WritePrivateProfileString("NextDownLoad", "毎月", nextEveryMon.ToString(), iniPath);
-				WritePrivateProfileString("NextDownLoad", "毎週", getEveryWeekNext(nowDateTime), iniPath);
-				nextEveryDay = nowDateTime.AddHours(12);
-				WritePrivateProfileString("NextDownLoad", "毎日", $"{nextEveryDay:yyyy/MM/dd HH:mm:ss}", iniPath);
+				int monInterval = DateTime.DaysInMonth(latestDLDateTime.Year, latestDLDateTime.Month) - latestDLDateTime.Day + 1;
+				nextEveryMon = DateTime.Parse(latestDLDateTime.AddDays(monInterval).ToString("yyyy/MM/dd"));
+				nextEveryWeek = getEveryWeekNext(latestDLDateTime);
+				nextEveryDay = latestDLDateTime.AddHours(12);
 				result = "毎月";
 			}
-			else if (nowDateTime >= nextEveryWeek)
+			else if (latestDLDateTime >= nextEveryWeek)
 			{
-				WritePrivateProfileString("NextDownLoad", "毎週", getEveryWeekNext(nowDateTime), iniPath);
-				nextEveryDay = nowDateTime.AddHours(12);
-				WritePrivateProfileString("NextDownLoad", "毎日", $"{nextEveryDay:yyyy/MM/dd HH:mm:ss}", iniPath);
+				nextEveryWeek = getEveryWeekNext(latestDLDateTime);
+				nextEveryDay = latestDLDateTime.AddHours(12);
 				result = "毎週";
 			}
-			else if (nowDateTime >= nextEveryDay)
+			else if (latestDLDateTime >= nextEveryDay)
 			{
-				nextEveryDay = nowDateTime.AddHours(12);
-				WritePrivateProfileString("NextDownLoad", "毎日", $"{nextEveryDay:yyyy/MM/dd HH:mm:ss}", iniPath);
+				nextEveryDay = latestDLDateTime.AddHours(12);
 				result = "毎日";
 			}
 			return result;
+		}
+
+		/// <summary>
+		/// 次回ダウンロード時間を書き込む
+		/// </summary>
+		/// <returns></returns>
+		private void WriteNextDateTime(string section)
+		{
+			switch(section)
+			{
+				case "毎月":
+					WritePrivateProfileString("NextDownLoad", "毎月", nextEveryMon.ToString(), iniPath);
+					WritePrivateProfileString("NextDownLoad", "毎週", nextEveryWeek.ToString(), iniPath);
+					WritePrivateProfileString("NextDownLoad", "毎日", nextEveryDay.ToString(), iniPath);
+					break;
+				case "毎週":
+					WritePrivateProfileString("NextDownLoad", "毎週", nextEveryWeek.ToString(), iniPath);
+					WritePrivateProfileString("NextDownLoad", "毎日", nextEveryDay.ToString(), iniPath);
+					break;
+				case "毎日":
+					WritePrivateProfileString("NextDownLoad", "毎日", nextEveryDay.ToString(), iniPath);
+					break;
+			}
+			WritePrivateProfileString("NextDownLoad", "実行日時", latestDLDateTime.ToString(), iniPath);
 		}
 
 		/// <summary>
@@ -716,7 +784,7 @@ namespace na6dlFrontEnd
 		/// </summary>
 		/// <param name="nowDateTime"></param>
 		/// <returns></returns>
-		private string getEveryWeekNext(DateTime nowDateTime)
+		private DateTime getEveryWeekNext(DateTime nowDateTime)
 		{
 			int weekInterval;
 			StringBuilder wk = new StringBuilder(256);
@@ -736,8 +804,7 @@ namespace na6dlFrontEnd
 			}
 			weekInterval -= (int)nowDateTime.DayOfWeek;
 			if (weekInterval > 7) weekInterval -= 7;
-			nextEveryWeek = DateTime.Parse(nowDateTime.AddDays(weekInterval).ToString("yyyy/MM/dd"));
-			return $"{nextEveryWeek:yyyy/MM/dd HH:mm:ss}";
+			return DateTime.Parse(nowDateTime.AddDays(weekInterval).ToString("yyyy/MM/dd"));
 		}
 
 		/// <summary>
@@ -832,5 +899,6 @@ namespace na6dlFrontEnd
 				latesttime = strtime;
 			}
 		}
+
 	}
 }
