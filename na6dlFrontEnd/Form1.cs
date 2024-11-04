@@ -41,6 +41,9 @@ namespace na6dlFrontEnd
 		private const int WM_USER = 0x400;
 		private const int WM_DLINFO = WM_USER + 30;
 
+		//
+		private const string DL_EXE_NAME = @"na6dl.exe";
+
 		private string exeDirName = "";
 		private string iniPath = "";
 		private UInt32 TotalChap = 0;
@@ -52,11 +55,12 @@ namespace na6dlFrontEnd
 		private string sStatus = "";
 		private int novelTotal = 0;
 		private int novelCount = 0;
-		private bool procComplete = false;
 		private bool busy = false;
 		private IntPtr hWnd = IntPtr.Zero;
 		private string dlAfterOpeNovel1st = "";
 		private string dlAfterOpeNovel1Later = "";
+
+		private bool DlStopFlag = false;	//ダウンロード中の
 
 		/// <summary>
 		/// コンストラクタ
@@ -91,6 +95,14 @@ namespace na6dlFrontEnd
 			GetPrivateProfileString("DownloadAfterOperation", "Novel1Later", "", wk, 512, iniPath);
 			dlAfterOpeNovel1Later = wk.ToString();
 
+			//必要ファイルが有るか確認
+			if(!File.Exists(exeDirName + @"\" + DL_EXE_NAME)
+			|| !File.Exists(exeDirName + @"\libeay32.dll")
+			|| !File.Exists(exeDirName + @"\ssleay32.dll"))
+			{
+				MessageBox.Show(this, "なろうダウンローダー、na6dl32のファイルが足りません","エラー",MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+
 			hWnd = this.Handle;
 
 			lblNovelTitle.Text =
@@ -103,61 +115,63 @@ namespace na6dlFrontEnd
 			{
 				GetPrivateProfileString("ListItems", $"Item{i + 1}", "", wk, 256, iniPath);
 				string item = wk.ToString();
-				if (item != "") lbUrlList.Items.Add(item);
+				if (!File.Exists(item))
+				{
+					MessageBox.Show(this, $@"ダウンロードリスト[{item}]はありません、無視されます", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+				}
+				else if (item != "")
+				{
+					lbUrlList.Items.Add(item);
+				}
 			}
 
 			lbUrlList_SelectedIndexChanged(null, null);
 
 			//テスト用
-			//終了後外部保コマンド
-			if (false)
-			{
-				if (dlAfterOpeNovel1st != "")
-				{
-					exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
-				}
-
-			}
-			//挿絵リンク抽出
-			if (false)
-			{
-				string[] buff = new string[]
-				{
-					"［＃水平線］［＃ここから罫囲み］",
-					"読んでくださりありがとうございます。",
-					"ゴブリンの邪悪さのお口直しにどうぞ。",
-					"",
-					"",
-					"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］",
-					"",
-					"［＃ここで罫囲み終わり］［＃水平線］",
-					"［＃改ページ］",
-					"［＃中見出し］１－３０　２日目の朝［＃中見出し終わり］",
-					"",
-					"［＃水平線］［＃ここから罫囲み］",
-					"本日もよろしくお願いします。",
-					"",
-					"［＃ここで罫囲み終わり］［＃水平線］",
-					"",
-					"",
-					"　常に総動員するのは不味いので、基本的に半分が召喚され、半分が外部にいるという体制を取ることになった。",
-					"　召喚されていない人は、パソコンで情報を集めて助言をしたり、連絡係をしたりと活動する。もちろん休憩に入ってもいい。深夜になったら全員が寝るというのは絶対に避けたいので、休憩も仕事なのだ。",
-					"",
-					"　というわけで、理想の猫の国を作るためにニート共は人形に宿って異世界へ働きに出た。",
-					"",
-					"「にゃふぅ！」",
-					"",
-					"",
-					"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i817371/）入る］",
-					"",
-					"",
-					"　お人形さんにうじゃうじゃと囲まれてふんすぅとするのはミニャ。",
-					"　今日からミニャもお外で元気に活動だ。",
-
-				};
-
-				string[] strs = getFigLink(buff);
-			}
+			////終了後外部保コマンド
+			//{
+			//	if (dlAfterOpeNovel1st != "")
+			//	{
+			//		exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
+			//	}
+			//}
+			////挿絵リンク抽出
+			//{
+			//	string[] buff = new string[]
+			//	{
+			//		"［＃水平線］［＃ここから罫囲み］",
+			//		"読んでくださりありがとうございます。",
+			//		"ゴブリンの邪悪さのお口直しにどうぞ。",
+			//		"",
+			//		"",
+			//		"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］",
+			//		"",
+			//		"［＃ここで罫囲み終わり］［＃水平線］",
+			//		"［＃改ページ］",
+			//		"［＃中見出し］１－３０　２日目の朝［＃中見出し終わり］",
+			//		"",
+			//		"［＃水平線］［＃ここから罫囲み］",
+			//		"本日もよろしくお願いします。",
+			//		"",
+			//		"［＃ここで罫囲み終わり］［＃水平線］",
+			//		"",
+			//		"",
+			//		"　常に総動員するのは不味いので、基本的に半分が召喚され、半分が外部にいるという体制を取ることになった。",
+			//		"　召喚されていない人は、パソコンで情報を集めて助言をしたり、連絡係をしたりと活動する。もちろん休憩に入ってもいい。深夜になったら全員が寝るというのは絶対に避けたいので、休憩も仕事なのだ。",
+			//		"",
+			//		"　というわけで、理想の猫の国を作るためにニート共は人形に宿って異世界へ働きに出た。",
+			//		"",
+			//		"「にゃふぅ！」",
+			//		"",
+			//		"",
+			//		"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i817371/）入る］",
+			//		"",
+			//		"",
+			//		"　お人形さんにうじゃうじゃと囲まれてふんすぅとするのはミニャ。",
+			//		"　今日からミニャもお外で元気に活動だ。",
+			//	};
+			//	string[] strs = getFigLink(buff);
+			//}
 
 			if (nextEveryDay > DateTime.Now)
 			{
@@ -333,9 +347,23 @@ namespace na6dlFrontEnd
 		/// <param name="e"></param>
 		private async void  btnDownload_Click(object sender, EventArgs e)
 		{
-			pnlBtn.Enabled = busy;
-			await DownloadAllAsync();
-			pnlBtn.Enabled = !busy;
+			if(busy)
+			{
+				DlStopFlag = true;
+				btnDownload.Enabled = false;
+				btnDownload.Text = "中止中";
+			}
+			else
+			{
+				lbUrlList.Enabled =
+				pnlBtn.Enabled = busy;
+				btnDownload.Text = "ダウンロード中止";
+				await DownloadAllAsync();
+				btnDownload.Text = "ダウンロード開始";
+				btnDownload.Enabled =
+				lbUrlList.Enabled =
+				pnlBtn.Enabled = !busy;
+			}
 		}
 
 		/// <summary>
@@ -425,17 +453,20 @@ namespace na6dlFrontEnd
 					{
 						break;
 					}
+					if (DlStopFlag) break;
 					novelTotal = novelCount;
 					lblText(lblListProgress, "(" + "   0" + " / " + novelTotal.ToString().PadLeft(4) + ")");
 					if (listNovelDL(linebuf, section) == false)
 					{
 						break;
 					}
+					if (DlStopFlag) break;
 				}
 				//lbUrlList.SelectedIndex = -1;
 				lbUrlListSelectedIndex(-1);
 				lblText(lblStatusApp, "ダウンロード終了");
 				WriteNextDateTime(section);
+				DlStopFlag = false;
 			}
 			else
 			{
@@ -458,7 +489,7 @@ namespace na6dlFrontEnd
 			string DlBaseDir = "";
 			string novelBaseDir = "";
 			int seqno = 0;
-			bool abortFlag = false;
+			bool endFlag = false;
 			string filepath = "";
 			//string infopath = "";
 			string novelDir = "";
@@ -498,13 +529,13 @@ namespace na6dlFrontEnd
 							break;
 						//最後のセクションの次のセクションを示す"#"を見つけたら終了
 						case 2:
-							abortFlag = (ldata[0] == '#');
+							endFlag = (ldata[0] == '#');
 							break;
 						default:
 							seqno = 0;
 							break;
 					}
-					if (abortFlag) break;
+					if (endFlag) break;
 
 					if ((ldata.Length > 8)
 					&& (ldata.Substring(0, 8) == "https://")
@@ -531,6 +562,7 @@ namespace na6dlFrontEnd
 					{
 						filepath = ldata;
 					}
+					if (DlStopFlag) break;
 				}
 				result = true;
 			}
@@ -581,7 +613,7 @@ namespace na6dlFrontEnd
 					}
 				}
 				lblText(lblStatusNovel, "ダウンロード中");
-				lblText(lblNovelTitle, "");
+				lblText(lblNovelTitle, fname);
 				lblText(lblProgress, "");
 
 				int startPage = 0;
@@ -624,18 +656,22 @@ namespace na6dlFrontEnd
 							}
 						}
 					}
+					//else
+					//{
+					//	MessageBox.Show(this, $"{fname} がダウンロード出来ません", "警告", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+					//}
 				}
 				else
 				{
 					//小説を最初から最新章までダウンロード
 					proc = na6dlDownload(hWnd, UrlAdr, filepath);
 					proc.WaitForExit();
-					infoLines = new List<string>();
-					//リンクの図を検索してリンクのみの文字列配列を取得し、情報ファイルの内容に追加・重複削除する
-					getFigLink(File.ReadAllLines(filepath), ref infoLines);
 
 					if(File.Exists(filepath))
 					{
+						infoLines = new List<string>();
+						//リンクの図を検索してリンクのみの文字列配列を取得し、情報ファイルの内容に追加・重複削除する
+						getFigLink(File.ReadAllLines(filepath), ref infoLines);
 						if (dlAfterOpeNovel1st != "")
 						{
 							exeAfterOperation(dlAfterOpeNovel1st, filepath);
@@ -643,18 +679,21 @@ namespace na6dlFrontEnd
 					}
 					else
 					{
-						MessageBox.Show(this,"小説がダウンロード出来ません","警告",MessageBoxButtons.OK,MessageBoxIcon.Warning);
+						MessageBox.Show(this,$"{fname} がダウンロード出来ません","警告",MessageBoxButtons.OK,MessageBoxIcon.Warning);
 					}
 				}
-				//小説情報ファイルを書き込む
-				using (StreamWriter sw = new StreamWriter(File.Create(infopath), new UTF8Encoding()))
+				if(infoLines != null)
 				{
-					sw.WriteLine($"{DateTime.Now}, {ChapCount + latestChap}");
-					if (infoLines.Count > 0)
+					//小説情報ファイルを書き込む
+					using (StreamWriter sw = new StreamWriter(File.Create(infopath), new UTF8Encoding()))
 					{
-						foreach (string str in infoLines)
+						sw.WriteLine($"{DateTime.Now}, {ChapCount + latestChap}");
+						if (infoLines.Count > 0)
 						{
-							sw.WriteLine(str);
+							foreach (string str in infoLines)
+							{
+								sw.WriteLine(str);
+							}
 						}
 					}
 				}
@@ -823,7 +862,7 @@ namespace na6dlFrontEnd
 			//IntPtr hWnd = this.Handle;
 
 			Process proc = new Process();
-			proc.StartInfo.FileName = @"na6dl.exe";
+			proc.StartInfo.FileName = DL_EXE_NAME;
 			if(string.IsNullOrEmpty(filePath))
 			{
 				proc.StartInfo.Arguments = $" \"-h {hWnd}\" {URL}";
@@ -878,14 +917,16 @@ namespace na6dlFrontEnd
 			if (sStatus == "")
 			{
 				lblText(lblStatusNovel, "ダウンロード終了");
-				lblText(lblProgress, $"100% ({TotalChap}/{TotalChap})");
+				if (TotalChap > 0)
+				{
+					lblText(lblProgress, $"100% ({TotalChap}/{TotalChap})");
+				}
 			}
 			else
 			{
 				lblText(lblStatusNovel, sStatus);
 			}
 			lblBkCol(lblProgress, SystemColors.Control);
-			procComplete = true;
 		}
 
 		private string latesttime = "";

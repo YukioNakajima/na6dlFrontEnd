@@ -43,9 +43,9 @@
 			this.lblStatusApp = new System.Windows.Forms.Label();
 			this.timer1 = new System.Windows.Forms.Timer(this.components);
 			this.pnlBtn = new System.Windows.Forms.Panel();
-			this.btnUrlAdd = new System.Windows.Forms.Button();
-			this.btnItemDn = new System.Windows.Forms.Button();
 			this.btnItemUp = new System.Windows.Forms.Button();
+			this.btnItemDn = new System.Windows.Forms.Button();
+			this.btnUrlAdd = new System.Windows.Forms.Button();
 			this.groupBox1.SuspendLayout();
 			this.pnlBtn.SuspendLayout();
 			this.SuspendLayout();
@@ -58,17 +58,17 @@
             | System.Windows.Forms.AnchorStyles.Right)));
 			this.lbUrlList.FormattingEnabled = true;
 			this.lbUrlList.ItemHeight = 12;
-			this.lbUrlList.Location = new System.Drawing.Point(0, 0);
+			this.lbUrlList.Location = new System.Drawing.Point(11, 10);
 			this.lbUrlList.Name = "lbUrlList";
 			this.lbUrlList.ScrollAlwaysVisible = true;
-			this.lbUrlList.Size = new System.Drawing.Size(404, 172);
+			this.lbUrlList.Size = new System.Drawing.Size(395, 172);
 			this.lbUrlList.TabIndex = 0;
 			this.lbUrlList.SelectedIndexChanged += new System.EventHandler(this.lbUrlList_SelectedIndexChanged);
 			// 
 			// btnAddList
 			// 
 			this.btnAddList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnAddList.Location = new System.Drawing.Point(409, 0);
+			this.btnAddList.Location = new System.Drawing.Point(0, 2);
 			this.btnAddList.Name = "btnAddList";
 			this.btnAddList.Size = new System.Drawing.Size(106, 23);
 			this.btnAddList.TabIndex = 1;
@@ -118,7 +118,7 @@
 			// 
 			this.btnDelList.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.btnDelList.BackColor = System.Drawing.Color.Yellow;
-			this.btnDelList.Location = new System.Drawing.Point(409, 105);
+			this.btnDelList.Location = new System.Drawing.Point(0, 107);
 			this.btnDelList.Name = "btnDelList";
 			this.btnDelList.Size = new System.Drawing.Size(106, 23);
 			this.btnDelList.TabIndex = 2;
@@ -129,7 +129,7 @@
 			// btnDownload
 			// 
 			this.btnDownload.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnDownload.Location = new System.Drawing.Point(409, 147);
+			this.btnDownload.Location = new System.Drawing.Point(412, 159);
 			this.btnDownload.Name = "btnDownload";
 			this.btnDownload.Size = new System.Drawing.Size(106, 23);
 			this.btnDownload.TabIndex = 3;
@@ -188,35 +188,32 @@
 			// 
 			// pnlBtn
 			// 
-			this.pnlBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.pnlBtn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
 			this.pnlBtn.Controls.Add(this.btnItemUp);
 			this.pnlBtn.Controls.Add(this.btnItemDn);
 			this.pnlBtn.Controls.Add(this.btnUrlAdd);
 			this.pnlBtn.Controls.Add(this.btnAddList);
 			this.pnlBtn.Controls.Add(this.btnDelList);
-			this.pnlBtn.Controls.Add(this.btnDownload);
-			this.pnlBtn.Controls.Add(this.lbUrlList);
-			this.pnlBtn.Location = new System.Drawing.Point(3, 12);
+			this.pnlBtn.Location = new System.Drawing.Point(412, 12);
 			this.pnlBtn.Name = "pnlBtn";
-			this.pnlBtn.Size = new System.Drawing.Size(517, 177);
+			this.pnlBtn.Size = new System.Drawing.Size(108, 133);
 			this.pnlBtn.TabIndex = 9;
 			// 
-			// btnUrlAdd
+			// btnItemUp
 			// 
-			this.btnUrlAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-			this.btnUrlAdd.Location = new System.Drawing.Point(409, 29);
-			this.btnUrlAdd.Name = "btnUrlAdd";
-			this.btnUrlAdd.Size = new System.Drawing.Size(106, 23);
-			this.btnUrlAdd.TabIndex = 1;
-			this.btnUrlAdd.Text = "URLを追加...";
-			this.btnUrlAdd.UseVisualStyleBackColor = true;
-			this.btnUrlAdd.Click += new System.EventHandler(this.btnUrlAdd_Click);
+			this.btnItemUp.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnItemUp.Location = new System.Drawing.Point(0, 60);
+			this.btnItemUp.Name = "btnItemUp";
+			this.btnItemUp.Size = new System.Drawing.Size(52, 23);
+			this.btnItemUp.TabIndex = 4;
+			this.btnItemUp.Text = "▲";
+			this.btnItemUp.UseVisualStyleBackColor = true;
+			this.btnItemUp.Click += new System.EventHandler(this.btnItemUp_Click);
 			// 
 			// btnItemDn
 			// 
-			this.btnItemDn.Location = new System.Drawing.Point(463, 57);
+			this.btnItemDn.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnItemDn.Location = new System.Drawing.Point(54, 59);
 			this.btnItemDn.Name = "btnItemDn";
 			this.btnItemDn.Size = new System.Drawing.Size(52, 23);
 			this.btnItemDn.TabIndex = 4;
@@ -224,15 +221,16 @@
 			this.btnItemDn.UseVisualStyleBackColor = true;
 			this.btnItemDn.Click += new System.EventHandler(this.btnItemDn_Click);
 			// 
-			// btnItemUp
+			// btnUrlAdd
 			// 
-			this.btnItemUp.Location = new System.Drawing.Point(409, 58);
-			this.btnItemUp.Name = "btnItemUp";
-			this.btnItemUp.Size = new System.Drawing.Size(52, 23);
-			this.btnItemUp.TabIndex = 4;
-			this.btnItemUp.Text = "▲";
-			this.btnItemUp.UseVisualStyleBackColor = true;
-			this.btnItemUp.Click += new System.EventHandler(this.btnItemUp_Click);
+			this.btnUrlAdd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+			this.btnUrlAdd.Location = new System.Drawing.Point(0, 31);
+			this.btnUrlAdd.Name = "btnUrlAdd";
+			this.btnUrlAdd.Size = new System.Drawing.Size(106, 23);
+			this.btnUrlAdd.TabIndex = 1;
+			this.btnUrlAdd.Text = "URLを追加...";
+			this.btnUrlAdd.UseVisualStyleBackColor = true;
+			this.btnUrlAdd.Click += new System.EventHandler(this.btnUrlAdd_Click);
 			// 
 			// Form1
 			// 
@@ -244,12 +242,14 @@
 			this.Controls.Add(this.lblListProgress);
 			this.Controls.Add(this.lblTimeCount);
 			this.Controls.Add(this.groupBox1);
+			this.Controls.Add(this.btnDownload);
 			this.Controls.Add(this.pnlBtn);
+			this.Controls.Add(this.lbUrlList);
 			this.MaximizeBox = false;
 			this.MinimizeBox = false;
 			this.MinimumSize = new System.Drawing.Size(535, 320);
 			this.Name = "Form1";
-			this.Text = "Form1";
+			this.Text = "なろう小説ダウンローダー";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
 			this.Load += new System.EventHandler(this.Form1_Load);
 			this.groupBox1.ResumeLayout(false);
