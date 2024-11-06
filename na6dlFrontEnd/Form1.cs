@@ -124,59 +124,15 @@ namespace na6dlFrontEnd
 					lbUrlList.Items.Add(item);
 				}
 			}
-
 			lbUrlList_SelectedIndexChanged(null, null);
-
-			//テスト用
-			////終了後外部保コマンド
-			//{
-			//	if (dlAfterOpeNovel1st != "")
-			//	{
-			//		exeAfterOperation(dlAfterOpeNovel1st, @"F:\Books\小説家になろうtest\宇宙の果てで謎の種を拾いました\宇宙の果てで謎の種を拾いました.txt");
-			//	}
-			//}
-			////挿絵リンク抽出
-			//{
-			//	string[] buff = new string[]
-			//	{
-			//		"［＃水平線］［＃ここから罫囲み］",
-			//		"読んでくださりありがとうございます。",
-			//		"ゴブリンの邪悪さのお口直しにどうぞ。",
-			//		"",
-			//		"",
-			//		"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i813181/）入る］",
-			//		"",
-			//		"［＃ここで罫囲み終わり］［＃水平線］",
-			//		"［＃改ページ］",
-			//		"［＃中見出し］１－３０　２日目の朝［＃中見出し終わり］",
-			//		"",
-			//		"［＃水平線］［＃ここから罫囲み］",
-			//		"本日もよろしくお願いします。",
-			//		"",
-			//		"［＃ここで罫囲み終わり］［＃水平線］",
-			//		"",
-			//		"",
-			//		"　常に総動員するのは不味いので、基本的に半分が召喚され、半分が外部にいるという体制を取ることになった。",
-			//		"　召喚されていない人は、パソコンで情報を集めて助言をしたり、連絡係をしたりと活動する。もちろん休憩に入ってもいい。深夜になったら全員が寝るというのは絶対に避けたいので、休憩も仕事なのだ。",
-			//		"",
-			//		"　というわけで、理想の猫の国を作るためにニート共は人形に宿って異世界へ働きに出た。",
-			//		"",
-			//		"「にゃふぅ！」",
-			//		"",
-			//		"",
-			//		"［＃リンクの図（//41743.mitemin.net/userpageimage/viewimagebig/icode/i817371/）入る］",
-			//		"",
-			//		"",
-			//		"　お人形さんにうじゃうじゃと囲まれてふんすぅとするのはミニャ。",
-			//		"　今日からミニャもお外で元気に活動だ。",
-			//	};
-			//	string[] strs = getFigLink(buff);
-			//}
 
 			if (nextEveryDay > DateTime.Now)
 			{
 				btnDownload.Enabled = false;
-				MessageBox.Show(this, $"最後にダウンロードしてから１２時間経過していません\nあと[{(nextEveryDay - DateTime.Now):hh\\:mm\\:ss}]");
+				if(DialogResult.Yes == MessageBox.Show(this, $"最後にダウンロードしてから１２時間経過していません\nあと[{(nextEveryDay - DateTime.Now):hh\\:mm\\:ss}]\n終了しますか？(y/n)", "確認", MessageBoxButtons.YesNoCancel,MessageBoxIcon.Question))
+				{
+					Close();
+				}
 				lblStatusApp.Text = $"実行可能迄後[{(nextEveryDay - DateTime.Now):hh\\:mm\\:ss}]";
 			}
 		}
@@ -188,16 +144,19 @@ namespace na6dlFrontEnd
 		/// <param name="e"></param>
 		private void Form1_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			if ((e.CloseReason == CloseReason.UserClosing)
-			&& (MessageBox.Show(this, "終了しますか", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes))
+			if (nextEveryDay <= DateTime.Now)
 			{
-				e.Cancel = true;
-				return;
-			}
-			if (busy && (MessageBox.Show(this, "ダウンロード中ですが本当に終了しますか", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes))
-			{
-				e.Cancel = true;
-				return;
+				if ((e.CloseReason == CloseReason.UserClosing)
+				&& (MessageBox.Show(this, "終了しますか", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes))
+				{
+					e.Cancel = true;
+					return;
+				}
+				if (busy && (MessageBox.Show(this, "ダウンロード中ですが本当に終了しますか", "確認", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes))
+				{
+					e.Cancel = true;
+					return;
+				}
 			}
 		}
 
@@ -921,6 +880,7 @@ namespace na6dlFrontEnd
 				{
 					lblText(lblProgress, $"100% ({TotalChap}/{TotalChap})");
 				}
+				TotalChap = 0;
 			}
 			else
 			{
